@@ -1,473 +1,349 @@
 
-const ventas = 'jsonapi';
-const ventas_del_dia = 'jsonapi/ventasdeldia'
-const Ventas_7_dias = 'jsonapi/ventassietedias'
-const Ventas_del_mes = 'jsonapi/ventasdelmes'
+const GetAllBuys = 'jsonapi';
+const GetBuyofDay = 'jsonapi/ventasdeldia'
+const GetBuyLastSevenDays = 'jsonapi/ventassietedias'
+const GetBuysOfMont = 'jsonapi/ventasdelmes'
 
 
-function VentasDeldia(){
-    
-    fetch(ventas_del_dia)
+const iDBuysofDay = document.getElementById('ventasdeldia').getContext('2d');
+const iDBuysofDayPorcent = document.getElementById('ventasdeldiaporcentaje').getContext('2d');
+const IDLastSevenDaysBuys = document.getElementById('ventasdelasemana').getContext('2d');
+const IDLastSevenDaysBuysPercent = document.getElementById('ventasdelasemanaporcentaje').getContext('2d');
+const IdBuysMonth = document.getElementById('ventasdelmes').getContext('2d');
+const IdBuysMonthPercent = document.getElementById('ventasdelmesporcentaje').getContext('2d')
+
+const backgroundColor = [
+    'rgba(255, 99, 132, 0.2)',
+    'rgba(54, 162, 235, 0.2)',
+    'rgba(255, 206, 86, 0.2)',
+    'rgba(75, 192, 192, 0.2)',
+    'rgba(153, 102, 255, 0.2)',
+    'rgba(255, 159, 64, 0.2)'
+]
+
+const borderColor = [
+    'rgba(255, 99, 132, 1)',
+    'rgba(54, 162, 235, 1)',
+    'rgba(255, 206, 86, 1)',
+    'rgba(75, 192, 192, 1)',
+    'rgba(153, 102, 255, 1)',
+    'rgba(255, 159, 64, 1)'
+]
+
+const options = {
+    scales: {
+        yAxes: [{
+            ticks: {
+                beginAtZero: true
+            }
+        }]
+    }
+}
+
+
+function BuysOfDay() {
+
+    fetch(GetBuyofDay)
         .then(response => response.json())
-        .then(datos => 
-    total_ventas(datos)    
-    )
+        .then(data =>
+            BuysOfDayData(data)
+        )
 
-    function total_ventas(datos){
-        console.log(datos)
+}
 
-        if(datos.ventas.length > 0){
+const BuysOfDayData = (data) => {
 
-                const ventas_filtro = datos.ventas.reduce(
-                    (anterior, producto) =>
-                    Object.assign({}, anterior, {
-                        [producto.nombre]: (anterior[producto.nombre] || 0) + producto.cantidad,
-                    }),
-                    {}
-                )
+    if (data.ventas.length > 0) {
 
-            total = Object.values(ventas_filtro)
-            prod = Object.keys(ventas_filtro)
+        const buyFilter = data.ventas.reduce(
+            (acc, el) =>
+            Object.assign({}, acc, {
+                [el.nombre]: (acc[el.nombre] || 0) + el.cantidad,
+            }), {}
+        )
+
+        let total = Object.values(buyFilter)
+        let prod = Object.keys(buyFilter)
 
 
-            var ctx = document.getElementById('ventasdeldia').getContext('2d');
-            var myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: prod,   //['completo', 'fajita', 'ass', 'bebidas'],
-                    datasets: [{
-                        label: 'Número de Ventas',
-                        data: total,     //[10,20,30,20],
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }]
-                    }
-                }
-            });
+        var ctx = iDBuysofDay
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: prod, //['completo', 'fajita', 'ass', 'bebidas'],
+                datasets: [{
+                    label: 'Número de Ventas',
+                    data: total, //[10,20,30,20],
+                    backgroundColor: backgroundColor,
+                    borderColor: borderColor,
+                    borderWidth: 1
+                }]
+            },
+            options: options
+        });
 
-    }else{
-
-        let ctx = document.getElementById('ventasdeldia').getContext('2d');
+    } else {
+        let ctx = iDBuysofDay
         ctx.font = "22px sans-serif";
-        ctx.fillText(" No hay datos!", 50, 200);;
+        ctx.fillText(" No hay datos!", 50, 200);
+    }
 
+}
+
+function BuysOfDayPercent() {
+    fetch(GetBuyofDay)
+        .then(response => response.json())
+        .then(data =>
+            BuysOfDayPercentData(data)
+        )
+}
+
+
+function BuysOfDayPercentData(data) {
+
+    if (data.ventas.length > 0) {
+
+        const buyFilter = data.ventas.reduce(
+            (acc, el) =>
+            Object.assign({}, acc, {
+                [el.nombre]: (acc[el.nombre] || 0) + el.cantidad,
+            }), {}
+        )
+
+        let dataArr = []
+
+        let buyfilterValue = Object.values(buyFilter)
+
+        let total = Object.values(buyFilter).reduce((acc, el) => {
+            return acc + el
+        })
+
+        for (let i = 0; i < buyfilterValue.length; i++) {
+            const element = buyfilterValue[i] / total * 100;
+            dataArr.push(parseInt(element))
+
+        }
+
+        prod = Object.keys(buyFilter)
+
+        var ctx = iDBuysofDayPorcent
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: prod, //['completo', 'fajita', 'ass', 'bebidas'],
+                datasets: [{
+                    label: '% de  Ventas',
+                    data: dataArr, //[10,20,30,20],
+                    backgroundColor: backgroundColor,
+                    borderColor: borderColor,
+                    borderWidth: 1
+                }]
+            },
+            options: options
+        });
+
+    } else {
+        let ctx = iDBuysofDayPorcent
+        ctx.font = "22px sans-serif";
+        ctx.fillText(" No hay datos!", 50, 200);
     }
 }
 
-}//VENTAS DEL DIA 
+function BuyofLastSeventDays() {
 
-
-
-function VentasDeldiaPorcentaje(){
-    
-    fetch(ventas_del_dia)
+    fetch(GetBuyLastSevenDays)
         .then(response => response.json())
-        .then(datos => 
-    total_ventas(datos)    
-    )
-
-    function total_ventas(datos){
-
-        if(datos.ventas.length > 0){
-
-                    const ventas_filtro = datos.ventas.reduce(
-                        (anterior, producto) =>
-                        Object.assign({}, anterior, {
-                            [producto.nombre]: (anterior[producto.nombre] || 0) + producto.cantidad,
-                        }),
-                        {}
-                    )
-
-
-                data = []
-
-                filtro = Object.values(ventas_filtro)
-
-                total = Object.values(ventas_filtro).reduce((acc,el)=>{
-                    return acc + el
-                })
-
-                for (let i = 0; i < filtro.length; i++) {
-                    const element = filtro[i] / total * 100;
-                    data.push(parseInt(element))
-                    
-                }
-
-                prod = Object.keys(ventas_filtro)
-
-
-                var ctx = document.getElementById('ventasdeldiaporcentaje').getContext('2d');
-                var myChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: prod,   //['completo', 'fajita', 'ass', 'bebidas'],
-                        datasets: [{
-                            label: '% de  Ventas',
-                            data: data,     //[10,20,30,20],
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 0.2)',
-                                'rgba(54, 162, 235, 0.2)',
-                                'rgba(255, 206, 86, 0.2)',
-                                'rgba(75, 192, 192, 0.2)',
-                                'rgba(153, 102, 255, 0.2)',
-                                'rgba(255, 159, 64, 0.2)'
-                            ],
-                            borderColor: [
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(255, 206, 86, 1)',
-                                'rgba(75, 192, 192, 1)',
-                                'rgba(153, 102, 255, 1)',
-                                'rgba(255, 159, 64, 1)'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    beginAtZero: true
-                                }
-                            }]
-                        }
-                    }
-                });
-
-
-
-
-        }else{
-            let ctx = document.getElementById('ventasdeldiaporcentaje').getContext('2d');
-            ctx.font = "22px sans-serif";
-            ctx.fillText(" No hay datos!", 50, 200);;
-        }
-
-
+        .then(data =>
+            BuyofLastSeventDaysData(data)
+        )
 }
 
-}//VENTAS DEL DIA PORCENTAJE
-
-
-
-function ventas_ultimos_7_dias(){
-    
-    fetch(Ventas_7_dias)
-        .then(response => response.json())
-        .then(datos => 
-    total_ventas(datos)    
+function BuyofLastSeventDaysData(data) {
+    const buyFilter = data.ventas.reduce(
+        (acc, el) =>
+        Object.assign({}, acc, {
+            [el.nombre]: (acc[el.nombre] || 0) + el.cantidad,
+        }), {}
     )
 
-    function total_ventas(datos){
-    const ventas_filtro = datos.ventas.reduce(
-        (anterior, producto) =>
-          Object.assign({}, anterior, {
-            [producto.nombre]: (anterior[producto.nombre] || 0) + producto.cantidad,
-          }),
-        {}
-    )
-
- total = Object.values(ventas_filtro)
- prod = Object.keys(ventas_filtro)
+    let total = Object.values(buyFilter)
+    let prod = Object.keys(buyFilter)
 
 
-var ctx = document.getElementById('ventasdelasemana').getContext('2d');
-var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: prod,   //['completo', 'fajita', 'ass', 'bebidas'],
-        datasets: [{
-            label: 'Número de Ventas',
-            data: total,     //[10,20,30,20],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                }
+    var ctx = IDLastSevenDaysBuys
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: prod, //['completo', 'fajita', 'ass', 'bebidas'],
+            datasets: [{
+                label: 'Número de Ventas',
+                data: total, //[10,20,30,20],
+                backgroundColor: backgroundColor,
+                borderColor: borderColor,
+                borderWidth: 1
             }]
-        }
-    }
-});
+        },
+        options: options
+    });
 
 }
 
-} // VENTAS DE LA SEMANA
 
 
+function BuyofLastSeventDaysPercent() {
 
-
-function ventas_ultimos_7_dias_Porcetaje(){
-    
-    fetch(Ventas_7_dias)
+    fetch(GetBuyLastSevenDays)
         .then(response => response.json())
-        .then(datos => 
-    total_ventas(datos)    
+        .then(data =>
+            BuyofLastSeventDaysPercentData(data)
+        )
+}
+
+
+function BuyofLastSeventDaysPercentData(data) {
+    const buyfilter = data.ventas.reduce(
+        (acc, el) =>
+        Object.assign({}, acc, {
+            [el.nombre]: (acc[el.nombre] || 0) + el.cantidad,
+        }), {}
     )
 
-    function total_ventas(datos){
-    const ventas_filtro = datos.ventas.reduce(
-        (anterior, producto) =>
-          Object.assign({}, anterior, {
-            [producto.nombre]: (anterior[producto.nombre] || 0) + producto.cantidad,
-          }),
-        {}
-    )
 
+    let dataArr = []
 
-data = []
+    let buyfilterValue = Object.values(buyfilter)
 
-filtro = Object.values(ventas_filtro)
+    let total = Object.values(buyfilter).reduce((acc, el) => {
+        return acc + el
+    })
 
- total = Object.values(ventas_filtro).reduce((acc,el)=>{
-     return acc + el
- })
+    for (let i = 0; i < buyfilterValue.length; i++) {
+        const element = buyfilterValue[i] / total * 100;
+        dataArr.push(parseInt(element))
 
- for (let i = 0; i < filtro.length; i++) {
-     const element = filtro[i] / total * 100;
-     data.push(parseInt(element))
-     
- }
-
- prod = Object.keys(ventas_filtro)
-
-
-var ctx = document.getElementById('ventasdelasemanaporcentaje').getContext('2d');
-var myChart = new Chart(ctx, {
-    type: 'pie',
-    data: {
-        labels: prod,   //['completo', 'fajita', 'ass', 'bebidas'],
-        datasets: [{
-            label: '% de  Ventas',
-            data: data,     //[10,20,30,20],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                }
-            }]
-        }
     }
-});
+
+    let prod = Object.keys(buyfilter)
+
+
+    var ctx = IDLastSevenDaysBuysPercent
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: prod, //['completo', 'fajita', 'ass', 'bebidas'],
+            datasets: [{
+                label: '% de  Ventas',
+                data: dataArr, //[10,20,30,20],
+                backgroundColor: backgroundColor,
+                borderColor: borderColor,
+                borderWidth: 1
+            }]
+        },
+        options: options
+    });
 
 }
 
-}//VENTAS DE LA SEMANA %
 
 
+function BuyOfMonth() {
 
-
-function ventasdelmes(){
-    
-    fetch(Ventas_del_mes)
+    fetch(GetBuysOfMont)
         .then(response => response.json())
-        .then(datos => 
-    total_ventas(datos)    
+        .then(datos =>
+            BuyOfMonthData(datos)
+        )
+}
+
+
+function BuyOfMonthData(datos) {
+    const buyfilter = datos.ventas.reduce(
+        (acc, el) =>
+        Object.assign({}, acc, {
+            [el.nombre]: (acc[el.nombre] || 0) + el.cantidad,
+        }), {}
     )
 
-    function total_ventas(datos){
-    const ventas_filtro = datos.ventas.reduce(
-        (anterior, producto) =>
-          Object.assign({}, anterior, {
-            [producto.nombre]: (anterior[producto.nombre] || 0) + producto.cantidad,
-          }),
-        {}
-    )
-
- total = Object.values(ventas_filtro)
- prod = Object.keys(ventas_filtro)
+    let total = Object.values(buyfilter)
+    let prod = Object.keys(buyfilter)
 
 
-var ctx = document.getElementById('ventasdelmes').getContext('2d');
-var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: prod,   //['completo', 'fajita', 'ass', 'bebidas'],
-        datasets: [{
-            label: 'Número de Ventas',
-            data: total,     //[10,20,30,20],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                }
+    var ctx = IdBuysMonth
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: prod, //['completo', 'fajita', 'ass', 'bebidas'],
+            datasets: [{
+                label: 'Número de Ventas',
+                data: total, //[10,20,30,20],
+                backgroundColor: backgroundColor,
+                borderColor: borderColor,
+                borderWidth: 1
             }]
-        }
-    }
-});
+        },
+        options: options
+    });
 
 }
 
-} // VENTAS DEL MES
 
 
-function ventasdelmesporcentaje(){
-    
-    fetch(Ventas_del_mes)
+function BuyOfMonthPercent() {
+
+    fetch(GetBuysOfMont)
         .then(response => response.json())
-        .then(datos => 
-    total_ventas(datos)    
+        .then(data =>
+            BuyOfMonthpercentData(data)
+        )
+}
+
+function BuyOfMonthpercentData(data) {
+    const buyfilter = data.ventas.reduce( //
+        (acc, el) =>
+        Object.assign({}, acc, {
+            [el.nombre]: (acc[el.nombre] || 0) + el.cantidad,
+        }), {}
     )
 
-    function total_ventas(datos){
-    const ventas_filtro = datos.ventas.reduce(
-        (anterior, producto) =>
-          Object.assign({}, anterior, {
-            [producto.nombre]: (anterior[producto.nombre] || 0) + producto.cantidad,
-          }),
-        {}
-    )
+    let dataArr = []
 
+    let buyfilterValue = Object.values(buyfilter) //
 
-data = []
+    let total = Object.values(buyfilter).reduce((acc, el) => { //
+        return acc + el
+    })
 
-filtro = Object.values(ventas_filtro)
+    for (let i = 0; i < buyfilterValue.length; i++) {
+        const element = buyfilterValue[i] / total * 100;
+        dataArr.push(parseInt(element))
 
- total = Object.values(ventas_filtro).reduce((acc,el)=>{
-     return acc + el
- })
-
- for (let i = 0; i < filtro.length; i++) {
-     const element = filtro[i] / total * 100;
-     data.push(parseInt(element))
-     
- }
-
- prod = Object.keys(ventas_filtro)
-
-
-var ctx = document.getElementById('ventasdelmesporcentaje').getContext('2d');
-var myChart = new Chart(ctx, {
-    type: 'pie',
-    data: {
-        labels: prod,   //['completo', 'fajita', 'ass', 'bebidas'],
-        datasets: [{
-            label: '% de  Ventas',
-            data: data,     //[10,20,30,20],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                }
-            }]
-        }
     }
-});
+
+    let prod = Object.keys(buyfilter)
+
+    var ctx = IdBuysMonthPercent
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: prod, //['completo', 'fajita', 'ass', 'bebidas'],
+            datasets: [{
+                label: '% de  Ventas',
+                data: dataArr, //[10,20,30,20],
+                backgroundColor: backgroundColor,
+                borderColor: borderColor,
+                borderWidth: 1
+            }]
+        },
+        options: options
+    });
 
 }
 
-}//VENTAS DEL MES %
-
-
-
-
-document.addEventListener("DOMContentLoaded", function(evento) {
-    VentasDeldia()
-    VentasDeldiaPorcentaje()
-    ventas_ultimos_7_dias()
-    ventas_ultimos_7_dias_Porcetaje()
-    ventasdelmes()
-    ventasdelmesporcentaje()
-  });
+document.addEventListener("DOMContentLoaded", function () {
+    BuysOfDay()
+    BuysOfDayPercent()
+    BuyofLastSeventDays()
+    BuyofLastSeventDaysPercent()
+    BuyOfMonth()
+    BuyOfMonthPercent()
+});
