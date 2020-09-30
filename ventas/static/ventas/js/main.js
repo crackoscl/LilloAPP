@@ -1,16 +1,14 @@
+const GetAllSales = 'jsonapi';
+const GetSaleofDay = 'jsonapi/ventasdeldia'
+const GetSaleLastSevenDays = 'jsonapi/ventassietedias'
+const GetSalesOfMont = 'jsonapi/ventasdelmes'
 
-const GetAllBuys = 'jsonapi';
-const GetBuyofDay = 'jsonapi/ventasdeldia'
-const GetBuyLastSevenDays = 'jsonapi/ventassietedias'
-const GetBuysOfMont = 'jsonapi/ventasdelmes'
-
-
-const iDBuysofDay = document.getElementById('ventasdeldia').getContext('2d');
-const iDBuysofDayPorcent = document.getElementById('ventasdeldiaporcentaje').getContext('2d');
-const IDLastSevenDaysBuys = document.getElementById('ventasdelasemana').getContext('2d');
-const IDLastSevenDaysBuysPercent = document.getElementById('ventasdelasemanaporcentaje').getContext('2d');
-const IdBuysMonth = document.getElementById('ventasdelmes').getContext('2d');
-const IdBuysMonthPercent = document.getElementById('ventasdelmesporcentaje').getContext('2d')
+const iDSalesofDay = document.getElementById('ventasdeldia').getContext('2d');
+const iDSalesofDayPorcent = document.getElementById('ventasdeldiaporcentaje').getContext('2d');
+const IDLastSevenDaysSales = document.getElementById('ventasdelasemana').getContext('2d');
+const IDLastSevenDaysSalesPercent = document.getElementById('ventasdelasemanaporcentaje').getContext('2d');
+const IdSalesMonth = document.getElementById('ventasdelmes').getContext('2d');
+const IdSalesMonthPercent = document.getElementById('ventasdelmesporcentaje').getContext('2d')
 
 const backgroundColor = [
     'rgba(255, 99, 132, 0.2)',
@@ -41,39 +39,33 @@ const options = {
 }
 
 
-function BuysOfDay() {
+const CreateFilter = data => data.reduce((acc, el) => ({
+    ...acc,
+    [el.nombre]: (acc[el.nombre] || 0) + el.cantidad
+}), {});
 
-    fetch(GetBuyofDay)
+const SumValues = data => data.reduce((acc, el) => acc + el)
+
+
+function SalesOfDay() {
+
+    fetch(GetSaleofDay)
         .then(response => response.json())
-        .then(data =>
-            BuysOfDayData(data)
-        )
-
+        .then(SalesOfDayData)
 }
 
-const BuysOfDayData = (data) => {
+const SalesOfDayData = (data) => {
 
-    if (data.ventas.length > 0) {
+    if (data.ventas.length) {
 
-        const buyFilter = data.ventas.reduce(
-            (acc, el) =>
-            Object.assign({}, acc, {
-                [el.nombre]: (acc[el.nombre] || 0) + el.cantidad,
-            }), {}
-        )
-
-        let total = Object.values(buyFilter)
-        let prod = Object.keys(buyFilter)
-
-
-        var ctx = iDBuysofDay
+        var ctx = iDSalesofDay
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: prod, //['completo', 'fajita', 'ass', 'bebidas'],
+                labels: prod = Object.keys(CreateFilter(data.ventas)), //['completo', 'fajita', 'ass', 'bebidas'],
                 datasets: [{
                     label: 'Número de Ventas',
-                    data: total, //[10,20,30,20],
+                    data: total = Object.values(CreateFilter(data.ventas)), //[10,20,30,20],
                     backgroundColor: backgroundColor,
                     borderColor: borderColor,
                     borderWidth: 1
@@ -83,57 +75,37 @@ const BuysOfDayData = (data) => {
         });
 
     } else {
-        let ctx = iDBuysofDay
+        let ctx = iDSalesofDay
         ctx.font = "22px sans-serif";
         ctx.fillText(" No hay datos!", 50, 200);
     }
 
 }
 
-function BuysOfDayPercent() {
-    fetch(GetBuyofDay)
+function SalesOfDayPercent() {
+    fetch(GetSaleofDay)
         .then(response => response.json())
-        .then(data =>
-            BuysOfDayPercentData(data)
-        )
+        .then(SalesOfDayPercentData)
 }
 
 
-function BuysOfDayPercentData(data) {
+function SalesOfDayPercentData(data) {
 
-    if (data.ventas.length > 0) {
+    if (data.ventas.length) {
 
-        const buyFilter = data.ventas.reduce(
-            (acc, el) =>
-            Object.assign({}, acc, {
-                [el.nombre]: (acc[el.nombre] || 0) + el.cantidad,
-            }), {}
-        )
+        const DataValue = Object.values(CreateFilter(data.ventas))
 
-        let dataArr = []
 
-        let buyfilterValue = Object.values(buyFilter)
+        ValuesMap = DataValue.map(values => values / SumValues(DataValue) * 100)
 
-        let total = Object.values(buyFilter).reduce((acc, el) => {
-            return acc + el
-        })
-
-        for (let i = 0; i < buyfilterValue.length; i++) {
-            const element = buyfilterValue[i] / total * 100;
-            dataArr.push(parseInt(element))
-
-        }
-
-        prod = Object.keys(buyFilter)
-
-        var ctx = iDBuysofDayPorcent
+        var ctx = iDSalesofDayPorcent
         new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: prod, //['completo', 'fajita', 'ass', 'bebidas'],
+                labels: prod = Object.keys(CreateFilter(data.ventas)), //['completo', 'fajita', 'ass', 'bebidas'],
                 datasets: [{
                     label: '% de  Ventas',
-                    data: dataArr, //[10,20,30,20],
+                    data: ValuesMap, //[10,20,30,20],
                     backgroundColor: backgroundColor,
                     borderColor: borderColor,
                     borderWidth: 1
@@ -143,207 +115,166 @@ function BuysOfDayPercentData(data) {
         });
 
     } else {
-        let ctx = iDBuysofDayPorcent
+        let ctx = iDSalesofDayPorcent
         ctx.font = "22px sans-serif";
         ctx.fillText(" No hay datos!", 50, 200);
     }
 }
 
-function BuyofLastSeventDays() {
+function SaleofLastSeventDays() {
 
-    fetch(GetBuyLastSevenDays)
+    fetch(GetSaleLastSevenDays)
         .then(response => response.json())
-        .then(data =>
-            BuyofLastSeventDaysData(data)
-        )
-}
-
-function BuyofLastSeventDaysData(data) {
-    const buyFilter = data.ventas.reduce(
-        (acc, el) =>
-        Object.assign({}, acc, {
-            [el.nombre]: (acc[el.nombre] || 0) + el.cantidad,
-        }), {}
-    )
-
-    let total = Object.values(buyFilter)
-    let prod = Object.keys(buyFilter)
-
-
-    var ctx = IDLastSevenDaysBuys
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: prod, //['completo', 'fajita', 'ass', 'bebidas'],
-            datasets: [{
-                label: 'Número de Ventas',
-                data: total, //[10,20,30,20],
-                backgroundColor: backgroundColor,
-                borderColor: borderColor,
-                borderWidth: 1
-            }]
-        },
-        options: options
-    });
+        .then(SaleofLastSeventDaysData)
 
 }
 
+function SaleofLastSeventDaysData(data) {
 
 
-function BuyofLastSeventDaysPercent() {
+    if (data.ventas.length) {
 
-    fetch(GetBuyLastSevenDays)
+        var ctx = IDLastSevenDaysSales
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: prod = Object.keys(CreateFilter(data.ventas)), //['completo', 'fajita', 'ass', 'bebidas']
+                datasets: [{
+                    label: 'Número de Ventas',
+                    data: total = Object.values(CreateFilter(data.ventas)), //[10,20,30,20],
+                    backgroundColor: backgroundColor,
+                    borderColor: borderColor,
+                    borderWidth: 1
+                }]
+            },
+            options: options
+        });
+    } else {
+        let ctx = iDSalesofDayPorcent
+        ctx.font = "22px sans-serif";
+        ctx.fillText(" No hay datos!", 50, 200);
+    }
+}
+
+
+function SaleofLastSeventDaysPercent() {
+
+
+    fetch(GetSaleLastSevenDays)
         .then(response => response.json())
-        .then(data =>
-            BuyofLastSeventDaysPercentData(data)
-        )
+        .then(SaleofLastSeventDaysPercentData)
 }
 
 
-function BuyofLastSeventDaysPercentData(data) {
-    const buyfilter = data.ventas.reduce(
-        (acc, el) =>
-        Object.assign({}, acc, {
-            [el.nombre]: (acc[el.nombre] || 0) + el.cantidad,
-        }), {}
-    )
+function SaleofLastSeventDaysPercentData(data) {
 
+    if (data.ventas.length) {
 
-    let dataArr = []
+        const DataValue = Object.values(CreateFilter(data.ventas))
 
-    let buyfilterValue = Object.values(buyfilter)
+        ValuesMap = DataValue.map(values => values / SumValues(DataValue) * 100)
 
-    let total = Object.values(buyfilter).reduce((acc, el) => {
-        return acc + el
-    })
-
-    for (let i = 0; i < buyfilterValue.length; i++) {
-        const element = buyfilterValue[i] / total * 100;
-        dataArr.push(parseInt(element))
-
+        var ctx = IDLastSevenDaysSalesPercent
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: prod = Object.keys(CreateFilter(data.ventas)), //['completo', 'fajita', 'ass', 'bebidas']
+                datasets: [{
+                    label: '% de  Ventas',
+                    data: ValuesMap, //[10,20,30,20],
+                    backgroundColor: backgroundColor,
+                    borderColor: borderColor,
+                    borderWidth: 1
+                }]
+            },
+            options: options
+        });
+    } else {
+        let ctx = iDSalesofDayPorcent
+        ctx.font = "22px sans-serif";
+        ctx.fillText(" No hay datos!", 50, 200);
     }
 
-    let prod = Object.keys(buyfilter)
-
-
-    var ctx = IDLastSevenDaysBuysPercent
-    new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: prod, //['completo', 'fajita', 'ass', 'bebidas'],
-            datasets: [{
-                label: '% de  Ventas',
-                data: dataArr, //[10,20,30,20],
-                backgroundColor: backgroundColor,
-                borderColor: borderColor,
-                borderWidth: 1
-            }]
-        },
-        options: options
-    });
-
 }
 
+function SaleOfMonth() {
 
-
-function BuyOfMonth() {
-
-    fetch(GetBuysOfMont)
+    fetch(GetSalesOfMont)
         .then(response => response.json())
-        .then(datos =>
-            BuyOfMonthData(datos)
-        )
+        .then(SaleOfMonthData)
 }
 
 
-function BuyOfMonthData(datos) {
-    const buyfilter = datos.ventas.reduce(
-        (acc, el) =>
-        Object.assign({}, acc, {
-            [el.nombre]: (acc[el.nombre] || 0) + el.cantidad,
-        }), {}
-    )
+function SaleOfMonthData(data) {
+    if (data.ventas.length) {
 
-    let total = Object.values(buyfilter)
-    let prod = Object.keys(buyfilter)
-
-
-    var ctx = IdBuysMonth
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: prod, //['completo', 'fajita', 'ass', 'bebidas'],
-            datasets: [{
-                label: 'Número de Ventas',
-                data: total, //[10,20,30,20],
-                backgroundColor: backgroundColor,
-                borderColor: borderColor,
-                borderWidth: 1
-            }]
-        },
-        options: options
-    });
-
-}
-
-
-
-function BuyOfMonthPercent() {
-
-    fetch(GetBuysOfMont)
-        .then(response => response.json())
-        .then(data =>
-            BuyOfMonthpercentData(data)
-        )
-}
-
-function BuyOfMonthpercentData(data) {
-    const buyfilter = data.ventas.reduce( //
-        (acc, el) =>
-        Object.assign({}, acc, {
-            [el.nombre]: (acc[el.nombre] || 0) + el.cantidad,
-        }), {}
-    )
-
-    let dataArr = []
-
-    let buyfilterValue = Object.values(buyfilter) //
-
-    let total = Object.values(buyfilter).reduce((acc, el) => { //
-        return acc + el
-    })
-
-    for (let i = 0; i < buyfilterValue.length; i++) {
-        const element = buyfilterValue[i] / total * 100;
-        dataArr.push(parseInt(element))
-
+        var ctx = IdSalesMonth
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(CreateFilter(data.ventas)), //['completo', 'fajita', 'ass', 'bebidas'],
+                datasets: [{
+                    label: 'Número de Ventas',
+                    data: total = Object.values(CreateFilter(data.ventas)), //[10,20,30,20],
+                    backgroundColor: backgroundColor,
+                    borderColor: borderColor,
+                    borderWidth: 1
+                }]
+            },
+            options: options
+        });
+    } else {
+        let ctx = iDSalesofDayPorcent
+        ctx.font = "22px sans-serif";
+        ctx.fillText(" No hay datos!", 50, 200);
     }
+}
 
-    let prod = Object.keys(buyfilter)
 
-    var ctx = IdBuysMonthPercent
-    new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: prod, //['completo', 'fajita', 'ass', 'bebidas'],
-            datasets: [{
-                label: '% de  Ventas',
-                data: dataArr, //[10,20,30,20],
-                backgroundColor: backgroundColor,
-                borderColor: borderColor,
-                borderWidth: 1
-            }]
-        },
-        options: options
-    });
+function SaleOfMonthPercent() {
+
+
+    fetch(GetSalesOfMont)
+        .then(response => response.json())
+        .then(SaleOfMonthpercentData)
+}
+
+function SaleOfMonthpercentData(data) {
+
+    if (data.ventas.length) {
+
+        const DataValue = Object.values(CreateFilter(data.ventas))
+
+        ValuesMap = DataValue.map(values => values / SumValues(DataValue) * 100)
+
+        var ctx = IdSalesMonthPercent
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: prod = Object.keys(CreateFilter(data.ventas)), //['completo', 'fajita', 'ass', 'bebidas'],
+                datasets: [{
+                    label: '% de  Ventas',
+                    data: ValuesMap, //[10,20,30,20],
+                    backgroundColor: backgroundColor,
+                    borderColor: borderColor,
+                    borderWidth: 1
+                }]
+            },
+            options: options
+        });
+    } else {
+        let ctx = iDSalesofDayPorcent
+        ctx.font = "22px sans-serif";
+        ctx.fillText(" No hay datos!", 50, 200);
+    }
 
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    BuysOfDay()
-    BuysOfDayPercent()
-    BuyofLastSeventDays()
-    BuyofLastSeventDaysPercent()
-    BuyOfMonth()
-    BuyOfMonthPercent()
+    SalesOfDay()
+    SalesOfDayPercent()
+    SaleofLastSeventDays()
+    SaleofLastSeventDaysPercent()
+    SaleOfMonth()
+    SaleOfMonthPercent()
 });
