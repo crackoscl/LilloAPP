@@ -96,7 +96,7 @@ function SalesOfDayPercentData(data) {
         const DataValue = Object.values(CreateFilter(data.ventas))
 
 
-        ValuesMap = DataValue.map(values => values / SumValues(DataValue) * 100)
+        const ValuesMap = DataValue.map(values => values / SumValues(DataValue) * 100)
 
         var ctx = iDSalesofDayPorcent
         new Chart(ctx, {
@@ -150,7 +150,7 @@ function SaleofLastSeventDaysData(data) {
             options: options
         });
     } else {
-        let ctx = iDSalesofDayPorcent
+        let ctx = IDLastSevenDaysSales
         ctx.font = "22px sans-serif";
         ctx.fillText(" No hay datos!", 50, 200);
     }
@@ -172,7 +172,7 @@ function SaleofLastSeventDaysPercentData(data) {
 
         const DataValue = Object.values(CreateFilter(data.ventas))
 
-        ValuesMap = DataValue.map(values => values / SumValues(DataValue) * 100)
+        const ValuesMap = DataValue.map(values => values / SumValues(DataValue) * 100)
 
         var ctx = IDLastSevenDaysSalesPercent
         new Chart(ctx, {
@@ -190,7 +190,7 @@ function SaleofLastSeventDaysPercentData(data) {
             options: options
         });
     } else {
-        let ctx = iDSalesofDayPorcent
+        let ctx = IDLastSevenDaysSalesPercent
         ctx.font = "22px sans-serif";
         ctx.fillText(" No hay datos!", 50, 200);
     }
@@ -224,7 +224,7 @@ function SaleOfMonthData(data) {
             options: options
         });
     } else {
-        let ctx = iDSalesofDayPorcent
+        let ctx = IdSalesMonth
         ctx.font = "22px sans-serif";
         ctx.fillText(" No hay datos!", 50, 200);
     }
@@ -245,7 +245,7 @@ function SaleOfMonthpercentData(data) {
 
         const DataValue = Object.values(CreateFilter(data.ventas))
 
-        ValuesMap = DataValue.map(values => values / SumValues(DataValue) * 100)
+        const ValuesMap = DataValue.map(values => values / SumValues(DataValue) * 100)
 
         var ctx = IdSalesMonthPercent
         new Chart(ctx, {
@@ -263,7 +263,7 @@ function SaleOfMonthpercentData(data) {
             options: options
         });
     } else {
-        let ctx = iDSalesofDayPorcent
+        let ctx = IdSalesMonthPercent
         ctx.font = "22px sans-serif";
         ctx.fillText(" No hay datos!", 50, 200);
     }
