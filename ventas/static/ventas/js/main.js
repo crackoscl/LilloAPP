@@ -87,7 +87,12 @@ const SalesOfPercent = (url, IdDiv) => {
             const DataValue = Object.values(CreateFilter(data.ventas))
 
 
-            const ValuesMap = DataValue.map(values => values / SumValues(DataValue) * 100)
+            // const ValuesMap = DataValue.map(values => values / SumValues(DataValue) * 100)
+            const ValuesMap = DataValue.map((values) => {
+                return (parseInt(values / SumValues(DataValue) * 100))
+            })
+
+            console.log(ValuesMap)
 
             var ctx = IdDiv
             new Chart(ctx, {
